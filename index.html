@@ -1,786 +1,674 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Analis Chart Trading</title>
+<title>Chart Analyzer – BTC • XAU • ETH • SOL</title>
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <style>
-:root{
-  --bg:#0b111b; --card:#121a28; --line:#1f2b42; --txt:#e3ebf7; --mut:#8a9bb5;
-  --up:#26a69a; --down:#ef5350; --acc:#4c8dff; --warn:#f5b942;
-}
+:root{--bg:#0b0f17;--panel:#121826;--panel2:#171e2e;--line:#1f2937;--txt:#e5e7eb;--mut:#8b95a7;--up:#26a69a;--down:#ef5350;--acc:#3b82f6;--warn:#f59e0b}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif}
-header{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-h1{font-size:17px;margin:0}
-.seg{display:flex;gap:4px;flex-wrap:wrap}
-.seg button,.btn{background:var(--card);color:var(--mut);border:1px solid var(--line);padding:7px 11px;border-radius:8px;cursor:pointer;font-size:13px}
-.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.btn:hover,.seg button:hover{color:#fff}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px}
-.bar label{color:var(--mut);font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer}
-.wrap{display:grid;grid-template-columns:1fr;gap:12px;padding:0 14px 20px}
-@media(min-width:980px){.wrap{grid-template-columns:1fr 390px}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
-#chart{width:100%;height:400px}
-@media(min-width:980px){#chart{height:560px}}
-.price{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.price b{font-size:24px;transition:color .15s}
-.mut{color:var(--mut)}
-.badge{display:inline-block;padding:6px 14px;border-radius:8px;font-weight:700;font-size:16px}
-.long{background:rgba(38,166,154,.18);color:var(--up)}
-.short{background:rgba(239,83,80,.18);color:var(--down)}
-.wait{background:rgba(245,185,66,.16);color:var(--warn)}
-h3{margin:0 0 8px;font-size:14px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
-.sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
-table{width:100%;border-collapse:collapse}
-td{padding:5px 0;vertical-align:top}
-td:last-child{text-align:right}
-.k{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
-ul{margin:0;padding:0;list-style:none}
-li{padding:3px 0;display:flex;gap:8px}
-li .p{min-width:28px;font-weight:700}
-.pos{color:var(--up)}.neg{color:var(--down)}.neu{color:var(--mut)}
-input[type=number]{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);padding:7px;border-radius:8px;font-size:14px}
-.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.row label{font-size:12px;color:var(--mut)}
-.note{font-size:12px;color:var(--mut);margin-top:12px;line-height:1.5}
-#status{font-size:12px;color:var(--mut)}
-select{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px}
-.tip{background:rgba(76,141,255,.1);border:1px solid rgba(76,141,255,.3);border-radius:8px;padding:8px 10px;font-size:12px;color:#b9cdf5;margin-top:10px}
-.stat{border-radius:8px;padding:8px 10px;margin:10px 0 4px;font-weight:600;background:rgba(255,255,255,.04)}
-.live{font-size:12px;font-weight:700}
-/* --- Kalibrasi beku harga --- */
-.frz{width:100%;background:rgba(76,141,255,.08);border:1px solid rgba(76,141,255,.3);border-radius:10px;padding:10px}
-.frz .top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.frz .btn.go{background:var(--acc);color:#fff;border-color:var(--acc)}
-.frz .form{display:none;margin-top:10px}
-.frz .form .fr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
-.frz .form input{width:150px}
-.frz .res{font-weight:700}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.top{display:flex;gap:8px;padding:10px;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--panel)}
+.wcard{min-width:150px;flex:1;padding:8px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--panel2);transition:.15s}
+.wcard:hover{border-color:#334155}
+.wcard.active{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.wcard .n{font-size:12px;color:var(--mut);display:flex;justify-content:space-between;gap:8px}
+.wcard .p{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.wcard .c{font-size:12px;font-variant-numeric:tabular-nums}
+.up{color:var(--up)}.down{color:var(--down)}
+.flashUp{animation:fu .4s}.flashDown{animation:fd .4s}
+@keyframes fu{from{background:rgba(38,166,154,.35)}to{background:var(--panel2)}}
+@keyframes fd{from{background:rgba(239,83,80,.35)}to{background:var(--panel2)}}
+#notice{display:none;padding:8px 14px;background:#1e3a5f;border-bottom:1px solid var(--acc);cursor:pointer;font-size:13px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:var(--panel);color:var(--mut);border:0;padding:6px 14px;cursor:pointer;font-weight:600}
+.seg button.on{background:var(--acc);color:#fff}
+label.chk{color:var(--mut);display:flex;gap:4px;align-items:center;font-size:12px;cursor:pointer}
+select,input{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:inherit}
+button.btn{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;font:inherit}
+button.btn:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.sp{flex:1}
+.status{font-size:12px;color:var(--mut);display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.dot.live{background:var(--up);box-shadow:0 0 6px var(--up)}
+.dot.off{background:var(--down)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:10px;padding:10px}
+@media(max-width:1000px){.main{grid-template-columns:1fr}}
+#chartWrap{position:relative;height:calc(100vh - 210px);min-height:440px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+@media(max-width:1000px){#chartWrap{height:60vh}}
+#chart{position:absolute;inset:0}
+#overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:rgba(11,15,23,.85);z-index:5;padding:20px;color:var(--mut)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.panel h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.badge{display:inline-block;padding:6px 16px;border-radius:8px;font-size:20px;font-weight:800;letter-spacing:.04em}
+.b-long{background:rgba(38,166,154,.18);color:var(--up);border:1px solid var(--up)}
+.b-short{background:rgba(239,83,80,.18);color:var(--down);border:1px solid var(--down)}
+.b-wait{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid var(--warn)}
+.meter{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0}
+.meter>i{display:block;height:100%}
+ul.r{list-style:none;margin:6px 0 0;padding:0;font-size:12.5px}
+ul.r li{padding:2px 0;color:var(--mut)}
+ul.r li b{display:inline-block;min-width:34px;font-variant-numeric:tabular-nums}
+.plan{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:var(--panel2)}
+.plan.rec{border-color:var(--acc)}
+.plan.dim{opacity:.55}
+.plan.locked{border:2px solid var(--warn)}
+.plan .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-weight:700;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.kv{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13px}
+.kv span:first-child{color:var(--mut)}
+.warn{color:var(--warn);font-size:12px;margin-top:6px}
+.small{font-size:11.5px;color:var(--mut);margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+td,th{padding:3px 4px;text-align:right}
+td:first-child,th:first-child{text-align:left}
+th{color:var(--mut);font-weight:500}
+.tag{font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+.foot{padding:6px 14px 20px;color:var(--mut);font-size:11.5px}
+.lkin label{display:block;font-size:11.5px;color:var(--mut)}
+.lkin input{width:100%}
 </style>
 </head>
 <body>
-<header>
-  <h1>📈 Analis Chart Trading</h1>
-  <div class="seg" id="assets"></div>
-</header>
-<div class="bar">
-  <div class="seg" id="tfs"></div>
-  <select id="mode" title="Tipe entry">
-    <option value="auto">Entry: Otomatis (dekat harga)</option>
-    <option value="market">Entry: Market</option>
-  </select>
-  <label title="Selisih harga broker (Exness) vs Binance, per aset. Contoh: Exness 4010, chart 4008 → isi 2. Jika Exness lebih rendah, isi minus.">Selisih Exness ($)
-    <input type="number" id="offset" value="0" step="any" style="width:90px">
-  </label>
-  <label><input type="checkbox" id="tSR" checked> S/R</label>
-  <label><input type="checkbox" id="tEMA" checked> EMA/VWAP</label>
-  <label><input type="checkbox" id="tPlan" checked> Entry/SL/TP</label>
-  <button class="btn" id="refresh">⟳ Muat ulang</button>
-  <span id="live" class="live"></span>
-  <span id="status"></span>
 
-  <div class="frz" id="frzBox">
-    <div class="top">
-      <button class="btn go" id="freeze">❄ Bekukan harga</button>
-      <span class="mut" id="frzHint">Samakan harga dengan Exness: lihat harga di MT5, lalu langsung ketuk tombol ini.</span>
+<div class="top" id="watch"></div>
+<div id="notice" onclick="this.style.display='none'"></div>
+
+<div class="bar">
+  <div class="seg" id="tfSeg"></div>
+  <label class="chk"><input type="checkbox" id="cEma20" checked> EMA 20</label>
+  <label class="chk"><input type="checkbox" id="cEma50" checked> EMA 50</label>
+  <label class="chk"><input type="checkbox" id="cEma200"> EMA 200</label>
+  <label class="chk"><input type="checkbox" id="cVwap" checked> VWAP</label>
+  <label class="chk"><input type="checkbox" id="cSR" checked> S/R &amp; plan</label>
+  <label class="chk"><input type="checkbox" id="cFib" checked> Fibonacci</label>
+  <label class="chk"><input type="checkbox" id="cAlarm"> 🔔 Alarm</label>
+  <div class="sp"></div>
+  <div class="status"><span>Close candle: <b id="cd">--:--</b></span><span class="dot" id="dot"></span><span id="stxt">Menghubungkan…</span></div>
+</div>
+
+<div class="main">
+  <div>
+    <div id="chartWrap"><div id="chart"></div><div id="overlay"></div></div>
+  </div>
+  <div>
+    <div class="panel"><h3>Sinyal <button class="btn" style="float:right;padding:2px 8px;font-size:11px" onclick="runAnalysis()">Hitung ulang</button></h3><div id="sig">Memuat…</div></div>
+
+    <div class="panel">
+      <h3>Rencana Trade
+        <select id="entryMode" style="float:right;font-size:12px"><option value="market">Entry: Market</option><option value="limit">Entry: Limit (pullback)</option></select>
+      </h3>
+      <div id="plans"></div>
     </div>
-    <div class="form" id="frzForm">
-      <div>Harga chart yang dibekukan: <b id="frzRaw">-</b> <span class="mut" id="frzAsset"></span></div>
-      <div class="fr">
-        <span>Harga Exness (MT5) tadi:</span>
-        <input type="number" id="frzEx" step="any" inputmode="decimal" placeholder="ketik harga Exness">
+
+    <div class="panel" id="brokerPanel">
+      <h3>Penyesuaian Harga Broker – <span id="offSym"></span></h3>
+      <div id="goldSrcRow" style="margin-bottom:8px;display:none">
+        <label class="small" style="display:block;margin:0 0 3px">Sumber harga emas</label>
+        <select id="goldSrc" style="width:100%">
+          <option value="fut">Binance Futures XAUUSDT (paling dekat spot XAU/USD)</option>
+          <option value="paxg">PAXG/USDT spot (token emas)</option>
+        </select>
       </div>
-      <div class="fr">
-        <span>Selisih: <span class="res" id="frzRes">-</span></span>
+      <div class="kv"><span>Harga sumber (mentah)</span><b id="rawPx">–</b></div>
+      <div class="kv"><span>Harga tampil (+selisih)</span><b id="shownPx">–</b></div>
+      <div class="grid2" style="margin-top:8px">
+        <label class="small" style="margin:0">Selisih (broker − sumber)<input id="offIn" type="number" step="0.01" value="0" style="width:100%"></label>
+        <label class="small" style="margin:0">Harga di broker sekarang<input id="brokerIn" type="number" step="0.01" placeholder="mis. harga di MT5" style="width:100%"></label>
       </div>
-      <div class="fr">
-        <button class="btn go" id="frzSave">✔ Simpan selisih</button>
-        <button class="btn" id="frzCancel">Batal</button>
+      <button class="btn pri" style="width:100%;margin-top:8px" onclick="calibrate()">Kalibrasi dari harga broker</button>
+      <div class="small">Isi harga di MT5/Exness lalu klik kalibrasi: selisih dihitung otomatis dan semua chart, S/R, entry, SL, TP ikut digeser ke harga broker Anda. Selisih bisa bergeser pelan-pelan (spread &amp; basis futures), jadi kalibrasi ulang bila perlu. Tiap aset menyimpan selisihnya sendiri.</div>
+    </div>
+
+    <div class="panel"><h3>Support, Resistance &amp; Fibonacci</h3><div id="levels"></div></div>
+    <div class="panel"><h3>Indikator</h3><div id="inds"></div></div>
+    <div class="panel">
+      <h3>Kalkulator Risiko</h3>
+      <div class="grid2" style="margin-bottom:8px">
+        <label>Modal (USD)<br><input id="bal" type="number" value="1000" min="1" style="width:100%"></label>
+        <label>Risiko / trade (%)<br><input id="riskPct" type="number" value="1" min="0.1" step="0.1" style="width:100%"></label>
       </div>
+      <label>Arah<br><select id="calcDir" style="width:100%"><option value="auto">Otomatis (rencana terkunci / sinyal)</option><option value="LONG">Long</option><option value="SHORT">Short</option></select></label>
+      <div id="calc" style="margin-top:8px"></div>
     </div>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="card">
-    <div class="price"><div><span class="mut" id="symName"></span><br><b id="curPrice">-</b></div><div class="mut" id="lastTime" style="text-align:right"></div></div>
-    <div id="chart"></div>
-    <div class="note">
-      <span class="k" style="background:#4c8dff"></span>Entry &nbsp;
-      <span class="k" style="background:#ef5350"></span>Stop Loss &nbsp;
-      <span class="k" style="background:#26a69a"></span>Take Profit &nbsp;
-      <span class="k" style="background:#f5b942"></span>Support/Resistance<br>
-      <span id="legend"></span>
-    </div>
-  </div>
-
-  <div class="card" id="panel">
-    <div id="dyn"><div class="mut">Memuat data…</div></div>
-    <div class="sec">
-      <h3>Kalkulator Posisi</h3>
-      <div class="row">
-        <div><label>Modal ($)</label><input type="number" id="bal" value="1000" min="0"></div>
-        <div><label>Risiko (%)</label><input type="number" id="rp" value="1" min="0" step="0.1"></div>
-        <div><label>Spread ($)</label><input type="number" id="spr" value="0" min="0" step="any"></div>
-      </div>
-      <div id="calcOut"></div>
-    </div>
-    <div class="note">⚠️ Alat bantu edukasi berbasis indikator teknikal (EMA, VWAP, RSI, MACD, ATR, pivot S/R) dari data historis. Bukan nasihat keuangan dan tidak menjamin profit. Selalu pakai stop loss & kelola risiko. Cek ulang level di platform broker sebelum order.</div>
-  </div>
+<div class="foot">
+  Data: Binance (WebSocket realtime). Harga tampil = harga sumber + selisih broker yang Anda atur. Sinyal dihitung ulang setiap candle close (supaya tidak berubah-ubah saat candle berjalan); rencana yang dikunci tidak berubah sama sekali sampai Anda membukanya.
+  Alat bantu analisa otomatis, bukan saran finansial. Selalu gunakan manajemen risiko.
 </div>
 
 <script>
-/* ============ KONFIGURASI ============ */
-const ASSETS = {
-  BTC:{sym:'BTCUSDT', name:'Bitcoin (BTC/USDT)', label:'Bitcoin'},
-  XAU:{sym:'XAUUSDT', fut:true, name:'Emas (XAU/USD · Binance Futures)', label:'Emas'},
-  ETH:{sym:'ETHUSDT', name:'Ethereum (ETH/USDT)', label:'Ethereum'},
-  SOL:{sym:'SOLUSDT', name:'Solana (SOL/USDT)', label:'Solana'}
+/* ================= KONFIGURASI ================= */
+const SYMBOLS = {
+  BTC:{label:'Bitcoin', pair:'BTCUSDT', dec:2, unit:'BTC', mk:'spot'},
+  XAU:{label:'Emas (XAUUSD)', pair:'XAUUSDT', dec:2, unit:'oz', mk:'fut', lot:100},
+  ETH:{label:'Ethereum', pair:'ETHUSDT', dec:2, unit:'ETH', mk:'spot'},
+  SOL:{label:'Solana', pair:'SOLUSDT', dec:3, unit:'SOL', mk:'spot'}
 };
-const TFS = ['1m','5m','15m','4h'];
-const TF_LABEL = {'1m':'1M','5m':'5M','15m':'15M','4h':'4H'};
-const HTF = {'1m':'15m','5m':'1h','15m':'1h','4h':'1d'};
-
-/* Parameter analisa: 1M/5M/15M = scalping, 4H = swing */
-const SCALP = {
-  label:'Scalping', icon:'⚡',
-  ema:[9,21,50], pull:1, rsiP:9, k:3, tol:0.5,
-  slMode:'micro', slMin:0.6, slMax:1.5, slDef:0.9, slBuf:0.15, buf:0.1,
-  tp1Min:0.8, tp1Max:1.6, tp1R:1, tp2Max:2.6, tp2R:1.8,
-  limMin:0.1, limMax:0.6, near:0.8,
-  useVwap:true, useVol:true, chop:true, breakout:true,
-  sig:4, strong:6, view:80,
-  tip:'💡 Scalping: entry dekat harga, SL di bawah/atas swing mikro terakhir, TP1 ≈ 1R. Ambil sebagian profit di TP1 lalu geser SL ke break-even. Hindari entry saat berita besar atau spread melebar. Klik "Kunci Rencana" agar level tidak bergeser saat Anda order.'
+const GOLD = {
+  fut :{pair:'XAUUSDT', mk:'fut',  name:'Binance Futures XAUUSDT'},
+  paxg:{pair:'PAXGUSDT',mk:'spot', name:'PAXG spot'}
 };
-const SWING = {
-  label:'Swing', icon:'🌊',
-  ema:[20,50,200], pull:0, rsiP:14, k:5, tol:0.6,
-  slMode:'level', slMin:1, slMax:3, slDef:1.5, slBuf:0.3, buf:0.1,
-  tp1Min:1, tp1Max:3, tp1R:1.5, tp2Max:6, tp2R:3,
-  limMin:0.3, limMax:2.5, near:1.2,
-  useVwap:false, useVol:false, chop:false, breakout:false,
-  sig:3, strong:5, view:110,
-  tip:'💡 Swing (4H): sinyal berlaku beberapa candle — nilai ulang saat candle close. Pertimbangkan biaya swap jika menahan posisi semalam dan pakai ukuran posisi lebih kecil karena SL lebih lebar.'
+const HOSTS = {
+  spot:{rest:['https://api.binance.com','https://data-api.binance.vision'],path:'/api/v3/klines',ws:'wss://stream.binance.com:9443'},
+  fut :{rest:['https://fapi.binance.com'],path:'/fapi/v1/klines',ws:'wss://fstream.binance.com'}
 };
-const HOSTS = ['https://data-api.binance.vision','https://api.binance.com','https://api1.binance.com'];
+const TFS = ['5m','15m','30m','1h'];
+const TF_SEC = {'5m':300,'15m':900,'30m':1800,'1h':3600,'4h':14400};
+const HTF_OF = {'5m':'1h','15m':'1h','30m':'1h','1h':'4h'};
 const TZ = -new Date().getTimezoneOffset()*60;
-const $ = id => document.getElementById(id);
 
-const state = {asset:'BTC', tf:'5m', raw:[], htf:null, an:null, locked:null, live:0, pend:0, dirty:false};
-try{
-  const s = JSON.parse(localStorage.getItem('analis_state2')||'{}');
-  if(ASSETS[s.asset]) state.asset=s.asset;
-  if(TFS.includes(s.tf)) state.tf=s.tf;
-}catch(e){}
-const save = () => { try{localStorage.setItem('analis_state2',JSON.stringify({asset:state.asset,tf:state.tf}))}catch(e){} };
-const params = () => state.tf==='4h' ? SWING : SCALP;
-const getOffs = () => { try{return JSON.parse(localStorage.getItem('analis_offsets')||'{}')}catch(e){return {}} };
-const getOff = () => +getOffs()[state.asset]||0;
+/* ================= STATE ================= */
+const S = {sym:'BTC', tf:'5m', goldSrc:'fut', alarm:false, candles:[], htf:[], wss:[], openCnt:0, connId:0, retry:0,
+  analysis:null, lines:[], lineKey:'', tickers:{}, raw:{}, off:{BTC:0,XAU_fut:0,XAU_paxg:0,ETH:0,SOL:0}, lock:{}, prevSig:{}, gold429:false};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d;}catch(e){return d;}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+(function(){const st=ld('ca_state',{});if(SYMBOLS[st.sym])S.sym=st.sym;if(TFS.includes(st.tf))S.tf=st.tf;if(GOLD[st.goldSrc])S.goldSrc=st.goldSrc;S.alarm=!!st.alarm;
+  Object.assign(S.off,ld('ca_off',{}));S.lock=ld('ca_lock',{});})();
+const saveState=()=>sv('ca_state',{sym:S.sym,tf:S.tf,goldSrc:S.goldSrc,alarm:S.alarm});
+const $=id=>document.getElementById(id);
+const meta=k=>{const b=SYMBOLS[k];if(k!=='XAU')return b;const g=GOLD[S.goldSrc];return {...b,pair:g.pair,mk:g.mk};};
+const offKey=k=>k==='XAU'?'XAU_'+S.goldSrc:k;
+const off=k=>S.off[offKey(k)]||0;
+const dec=()=>SYMBOLS[S.sym].dec;
+const fmt=(v,d=dec())=>(v==null||isNaN(v))?'–':Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const rnd=(v,d=dec())=>+Number(v).toFixed(d);
+const pad=n=>String(n).padStart(2,'0');
+const hhmm=t=>{const d=new Date(t*1000);return pad(d.getUTCHours())+':'+pad(d.getUTCMinutes());};
 
-/* ============ DATA ============ */
-function mapK(k){ return {t:Math.floor(k[0]/1000),o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}; }
-async function fetchKlines(sym, interval, limit=500, fut=false){
-  let err;
-  const hosts = fut ? ['https://fapi.binance.com'] : HOSTS;
-  const path = fut ? '/fapi/v1/klines' : '/api/v3/klines';
-  for(const h of hosts){
-    try{
-      const r = await fetch(`${h}${path}?symbol=${sym}&interval=${interval}&limit=${limit}`);
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return (await r.json()).map(mapK);
-    }catch(e){err=e}
+/* ================= NOTIFIKASI & ALARM ================= */
+let AC=null;
+function beep(pat){
+  if(!S.alarm)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;
+    pat.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.connect(g);g.connect(AC.destination);
+      g.gain.setValueAtTime(0.18,t+i*0.25);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.25+0.22);o.start(t+i*0.25);o.stop(t+i*0.25+0.23);});}catch(e){}
+}
+let noticeTimer=null;
+function notice(msg,pat){
+  const n=$('notice');n.textContent=msg;n.style.display='block';clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>n.style.display='none',20000);
+  if(pat){beep(pat);try{if(S.alarm&&'Notification' in window&&Notification.permission==='granted')new Notification('Chart Analyzer',{body:msg});}catch(e){}}
+}
+
+/* ================= CHART ================= */
+const chart=LightweightCharts.createChart($('chart'),{
+  autoSize:true,
+  layout:{background:{type:'solid',color:'#121826'},textColor:'#9ca3af'},
+  grid:{vertLines:{color:'#18202f'},horzLines:{color:'#18202f'}},
+  crosshair:{mode:0},
+  rightPriceScale:{borderColor:'#1f2937'},
+  timeScale:{borderColor:'#1f2937',timeVisible:true,secondsVisible:false,rightOffset:8}
+});
+const candleS=chart.addCandlestickSeries({upColor:'#26a69a',downColor:'#ef5350',borderVisible:false,wickUpColor:'#26a69a',wickDownColor:'#ef5350'});
+const volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'vol',lastValueVisible:false,priceLineVisible:false});
+chart.priceScale('vol').applyOptions({scaleMargins:{top:0.85,bottom:0}});
+const lineOpt=c=>({color:c,lineWidth:1,priceLineVisible:false,lastValueVisible:false});
+const emaS={20:chart.addLineSeries(lineOpt('#fbbf24')),50:chart.addLineSeries(lineOpt('#60a5fa')),200:chart.addLineSeries(lineOpt('#c084fc'))};
+const vwapS=chart.addLineSeries({...lineOpt('#f472b6'),lineStyle:1});
+
+/* ================= INDIKATOR ================= */
+function emaArr(v,p){const o=new Array(v.length).fill(null);if(v.length<p)return o;let s=0;for(let i=0;i<p;i++)s+=v[i];let e=s/p;o[p-1]=e;const k=2/(p+1);for(let i=p;i<v.length;i++){e=v[i]*k+e*(1-k);o[i]=e;}return o;}
+function rsiArr(c,p=14){const o=new Array(c.length).fill(null);if(c.length<=p)return o;let g=0,l=0;for(let i=1;i<=p;i++){const d=c[i]-c[i-1];if(d>=0)g+=d;else l-=d;}g/=p;l/=p;o[p]=l===0?100:100-100/(1+g/l);for(let i=p+1;i<c.length;i++){const d=c[i]-c[i-1];g=(g*(p-1)+(d>0?d:0))/p;l=(l*(p-1)+(d<0?-d:0))/p;o[i]=l===0?100:100-100/(1+g/l);}return o;}
+function atrArr(cs,p=14){const o=new Array(cs.length).fill(null);if(cs.length<=p)return o;const tr=cs.map((c,i)=>i===0?c.high-c.low:Math.max(c.high-c.low,Math.abs(c.high-cs[i-1].close),Math.abs(c.low-cs[i-1].close)));let a=0;for(let i=1;i<=p;i++)a+=tr[i];a/=p;o[p]=a;for(let i=p+1;i<cs.length;i++){a=(a*(p-1)+tr[i])/p;o[i]=a;}return o;}
+function macdCalc(c){const e12=emaArr(c,12),e26=emaArr(c,26);const m=c.map((_,i)=>e12[i]!=null&&e26[i]!=null?e12[i]-e26[i]:null);const f=m.findIndex(v=>v!=null);const sig=new Array(c.length).fill(null);if(f>=0){emaArr(m.slice(f),9).forEach((v,j)=>sig[f+j]=v);}return m.map((v,i)=>v!=null&&sig[i]!=null?v-sig[i]:null);}
+function vwapArr(cs){let day=null,pv=0,v=0;return cs.map(c=>{const d=Math.floor((c.time-TZ)/86400);if(d!==day){day=d;pv=0;v=0;}pv+=(c.high+c.low+c.close)/3*c.volume;v+=c.volume;return v?pv/v:null;});}
+const last=(a,k=0)=>a[a.length-1-k];
+
+/* ================= SWING, S/R, FIB ================= */
+function findPivots(cs,L=4,R=4){
+  const p=[];
+  for(let i=L;i<cs.length-R;i++){
+    let h=true,l=true;
+    for(let j=1;j<=L;j++){if(cs[i-j].high>cs[i].high)h=false;if(cs[i-j].low<cs[i].low)l=false;}
+    for(let j=1;j<=R;j++){if(cs[i+j].high>=cs[i].high)h=false;if(cs[i+j].low<=cs[i].low)l=false;}
+    if(h)p.push({idx:i,price:cs[i].high,type:'H'});
+    if(l)p.push({idx:i,price:cs[i].low,type:'L'});
+  }
+  return p;
+}
+function clusterZones(piv,tol,minW,n){
+  const s=[...piv].sort((a,b)=>a.price-b.price),zs=[];let cur=null;
+  for(const p of s){if(cur&&p.price-cur.min<=tol)cur.pts.push(p);else{cur={pts:[p],min:p.price};zs.push(cur);}}
+  return zs.map(z=>{
+    const pr=z.pts.map(p=>p.price);let lo=Math.min(...pr),hi=Math.max(...pr);
+    const mid=pr.reduce((a,b)=>a+b,0)/pr.length;
+    if(hi-lo<minW){lo=mid-minW/2;hi=mid+minW/2;}
+    const lastIdx=Math.max(...z.pts.map(p=>p.idx));
+    return {price:mid,low:lo,high:hi,touches:pr.length,lastIdx,score:pr.length+1.5*(lastIdx/n)};
+  }).filter(z=>z.touches>=2);
+}
+function structure(piv){
+  const H=piv.filter(p=>p.type==='H').slice(-2),L=piv.filter(p=>p.type==='L').slice(-2);
+  if(H.length<2||L.length<2)return {name:'Belum jelas',s:0};
+  const hh=H[1].price>H[0].price,hl=L[1].price>L[0].price;
+  if(hh&&hl)return {name:'Higher High + Higher Low (uptrend)',s:1};
+  if(!hh&&!hl)return {name:'Lower High + Lower Low (downtrend)',s:-1};
+  return {name:'Sideways / transisi',s:0};
+}
+function calcFib(piv,atr){
+  const H=piv.filter(p=>p.type==='H').slice(-1)[0],L=piv.filter(p=>p.type==='L').slice(-1)[0];
+  if(!H||!L||Math.abs(H.price-L.price)<2.5*atr)return null;
+  const up=H.idx>L.idx,rg=H.price-L.price;
+  return {up,hi:H.price,lo:L.price,levels:[0.236,0.382,0.5,0.618,0.786].map(r=>({r,price:up?H.price-r*rg:L.price+r*rg}))};
+}
+function candlePattern(c1,c0,atr){
+  const body=Math.abs(c1.close-c1.open),rng=c1.high-c1.low;
+  if(rng<0.5*atr||rng===0)return null;
+  const up=c1.high-Math.max(c1.open,c1.close),lw=Math.min(c1.open,c1.close)-c1.low;
+  if(c0.close<c0.open&&c1.close>c1.open&&c1.close>=c0.open&&c1.open<=c0.close)return {n:'Bullish Engulfing',s:1};
+  if(c0.close>c0.open&&c1.close<c1.open&&c1.close<=c0.open&&c1.open>=c0.close)return {n:'Bearish Engulfing',s:-1};
+  if(lw>=2*body&&up<=0.6*Math.max(body,rng*0.1)&&body>0.05*rng)return {n:'Hammer / Pin Bar bawah',s:1};
+  if(up>=2*body&&lw<=0.6*Math.max(body,rng*0.1)&&body>0.05*rng)return {n:'Shooting Star / Pin Bar atas',s:-1};
+  return null;
+}
+
+/* ================= RENCANA TRADE ================= */
+function buildPlan(dir,a,mode){
+  const {price,atr,ema20}=a,sg=dir==='LONG'?1:-1;
+  const prot=dir==='LONG'?a.supports:a.resistances;
+  const targ=dir==='LONG'?a.resistances:a.supports;
+  const warn=[];
+  let entry=price;
+  if(mode==='limit'){
+    const z=prot[0],cand=z?(dir==='LONG'?z.high:z.low):null;
+    const opts=[cand,ema20].filter(v=>v!=null&&sg*(price-v)>0.3*atr&&sg*(price-v)<=2.5*atr);
+    if(opts.length)entry=dir==='LONG'?Math.max(...opts):Math.min(...opts);
+    else warn.push('Tidak ada area pullback dekat – entry memakai harga sekarang.');
+  }
+  const pz=prot.find(z=>dir==='LONG'?z.low<entry:z.high>entry);
+  let dist;
+  if(pz){const st=dir==='LONG'?pz.low-0.3*atr:pz.high+0.3*atr;dist=Math.abs(entry-st);
+    if(dist>3*atr){dist=2*atr;warn.push('Level struktur terlalu jauh, SL dibatasi 2×ATR.');}
+    if(dist<0.8*atr)dist=0.8*atr;}
+  else dist=1.5*atr;
+  const sl=entry-sg*dist,risk=dist;
+  const tz=targ.filter(z=>dir==='LONG'?z.low>entry:z.high<entry);
+  const t1c=tz[0]?(dir==='LONG'?tz[0].low-0.1*atr:tz[0].high+0.1*atr):null;
+  let tp1;
+  if(t1c!=null&&sg*(t1c-entry)/risk>=1&&sg*(t1c-entry)/risk<=4)tp1=t1c;
+  else{tp1=entry+sg*1.5*risk;if(t1c!=null&&sg*(t1c-entry)/risk<1)warn.push(dir==='LONG'?'Resistance terlalu dekat (RR < 1) – hati-hati.':'Support terlalu dekat (RR < 1) – hati-hati.');}
+  const t2c=tz[1]?(dir==='LONG'?tz[1].low-0.1*atr:tz[1].high+0.1*atr):null;
+  const tp2=(t2c!=null&&sg*(t2c-tp1)>0.5*risk&&sg*(t2c-entry)/risk<=6)?t2c:entry+sg*Math.max(2.5*risk,sg*(tp1-entry)+risk);
+  return {dir,mode,entry,sl,tp1,tp2,risk,rr1:Math.abs(tp1-entry)/risk,rr2:Math.abs(tp2-entry)/risk,warn};
+}
+
+/* ================= ANALISA (hanya candle yang sudah close) ================= */
+function analyze(cs,htf,mode){
+  if(cs.length<60)return null;
+  const closes=cs.map(c=>c.close),n=cs.length;
+  const e20=emaArr(closes,20),e50=emaArr(closes,50),e200=emaArr(closes,200);
+  const rsi=rsiArr(closes),atrA=atrArr(cs),hist=macdCalc(closes),vw=vwapArr(cs);
+  const price=last(closes),atr=last(atrA),ema20=last(e20),ema50=last(e50),ema200=last(e200),vwap=last(vw);
+  const rs=last(rsi),mh=last(hist),mh1=last(hist,1);
+
+  const piv=findPivots(cs.slice(-400),4,4).map(p=>({...p,idx:p.idx+Math.max(0,n-400)}));
+  const zones=clusterZones(piv,atr*0.5,atr*0.25,n);
+  const supports=zones.filter(z=>z.price<=price).sort((a,b)=>b.price-a.price).slice(0,4);
+  const resistances=zones.filter(z=>z.price>price).sort((a,b)=>a.price-b.price).slice(0,4);
+  const st=structure(piv),fib=calcFib(piv,atr);
+
+  let htfBias=0,htfTxt='n/a';
+  if(htf&&htf.length>60){
+    const hc=htf.map(c=>c.close),h20=last(emaArr(hc,20)),h50=last(emaArr(hc,50)),hp=last(hc);
+    htfBias=(hp>h50?1:-1)+(h20>h50?1:-1);
+    htfTxt=htfBias>0?'Bullish':htfBias<0?'Bearish':'Netral';
+  }
+
+  const R=[];let sc=0;const add=(v,t)=>{sc+=v;R.push({v,t});};
+  if(price>ema20&&ema20>ema50)add(2,'Harga di atas EMA20 & EMA50 (tren naik)');
+  else if(price<ema20&&ema20<ema50)add(-2,'Harga di bawah EMA20 & EMA50 (tren turun)');
+  else add(price>ema50?1:-1,price>ema50?'Harga di atas EMA50':'Harga di bawah EMA50');
+  if(st.s!==0)add(st.s*1.5,'Struktur: '+st.name);
+  if(htfBias!==0)add(htfBias*0.75,`Bias ${HTF_OF[S.tf]}: ${htfTxt}`);
+  else R.push({v:0,t:`Bias ${HTF_OF[S.tf]}: Netral`});
+  if(vwap!=null)add(price>vwap?0.5:-0.5,price>vwap?'Harga di atas VWAP harian':'Harga di bawah VWAP harian');
+  if(mh!=null&&mh1!=null){
+    if(mh>0&&mh>mh1)add(1,'MACD histogram positif & menguat');
+    else if(mh<0&&mh<mh1)add(-1,'MACD histogram negatif & menguat turun');
+    else R.push({v:0,t:'MACD melemah / tidak searah'});
+  }
+  if(rs>75)add(-1,`RSI ${rs.toFixed(0)} – overbought`);
+  else if(rs<25)add(1,`RSI ${rs.toFixed(0)} – oversold`);
+  else if(rs>=55)add(0.5,`RSI ${rs.toFixed(0)} – momentum bullish`);
+  else if(rs<=45)add(-0.5,`RSI ${rs.toFixed(0)} – momentum bearish`);
+  const s1=supports[0],r1=resistances[0];
+  if(s1&&price-s1.price<=atr)add(1.5,'Harga dekat support '+fmt(s1.price));
+  if(r1&&r1.price-price<=atr)add(-1.5,'Harga dekat resistance '+fmt(r1.price));
+  const pat=candlePattern(cs[n-1],cs[n-2],atr);
+  if(pat)add(pat.s,'Pola candle: '+pat.n);
+  const vols=cs.slice(-21,-1).map(c=>c.volume),avgV=vols.reduce((a,b)=>a+b,0)/vols.length;
+  const relVol=avgV?cs[n-1].volume/avgV:1;
+
+  const signal=sc>=3?'LONG':sc<=-3?'SHORT':'WAIT';
+  const a={price,atr,ema20,ema50,ema200,vwap,rsi:rs,macdHist:mh,supports,resistances,fib,structure:st,htfTxt,htfBias,score:sc,reasons:R,signal,
+    conf:Math.min(100,Math.round(Math.abs(sc)/8*100)),pattern:pat,relVol,time:cs[n-1].time,tf:S.tf};
+  a.plans={LONG:buildPlan('LONG',a,mode),SHORT:buildPlan('SHORT',a,mode)};
+  return a;
+}
+
+/* ================= TRADE PLAN TERKUNCI ================= */
+const saveLock=()=>sv('ca_lock',S.lock);
+function lockPlan(dir){
+  const a=S.analysis;if(!a)return;
+  const p=a.plans[dir],px=S.tickers[S.sym]??a.price,d=dec();
+  const L={dir,entry:rnd(p.entry),sl:rnd(p.sl),tp1:rnd(p.tp1),tp2:rnd(p.tp2),t:Date.now(),tf:S.tf,tp1hit:false,
+    from:px>p.entry?'above':'below',state:Math.abs(px-p.entry)<=0.15*a.atr?'active':'pending'};
+  S.lock[S.sym]=L;saveLock();S.lineKey='';renderPlans();drawLines(a);renderCalc();
+  notice(`Rencana ${dir} ${S.sym} dikunci. Entry ${fmt(L.entry)} • SL ${fmt(L.sl)} • TP1 ${fmt(L.tp1)} • TP2 ${fmt(L.tp2)}`);
+}
+function unlockPlan(){delete S.lock[S.sym];saveLock();S.lineKey='';renderPlans();drawLines(S.analysis);renderCalc();}
+function editLock(f,v){
+  const L=S.lock[S.sym];v=parseFloat(v);if(!L||isNaN(v))return;
+  L[f]=rnd(v);
+  if(f==='entry'&&L.state==='pending'){const px=S.tickers[S.sym];if(px!=null)L.from=px>L.entry?'above':'below';}
+  saveLock();S.lineKey='';renderPlans();drawLines(S.analysis);renderCalc();
+}
+const STATE_TXT={pending:'⏳ Menunggu harga ke entry',active:'▶ Posisi aktif',sl:'❌ Stop Loss kena',tp2:'✅ TP2 tercapai',cancel:'⚠ Batal – SL tersentuh sebelum entry'};
+function checkLock(k,p){
+  const L=S.lock[k];if(!L||['sl','tp2','cancel'].includes(L.state))return;
+  const sg=L.dir==='LONG'?1:-1,nm=`${L.dir} ${k}`;let ch=false;
+  if(L.state==='pending'){
+    if(sg*(p-L.sl)<=0){L.state='cancel';ch=true;notice(`${nm}: harga menyentuh SL sebelum entry – setup batal.`,[300,300]);}
+    else if(L.from==='above'?p<=L.entry:p>=L.entry){L.state='active';ch=true;notice(`${nm}: harga menyentuh ENTRY ${fmt(L.entry,SYMBOLS[k].dec)}`,[880,1100,1320]);}
+  }else if(L.state==='active'){
+    if(sg*(p-L.sl)<=0){L.state='sl';ch=true;notice(`${nm}: STOP LOSS ${fmt(L.sl,SYMBOLS[k].dec)} kena`,[300,220,180]);}
+    else if(sg*(p-L.tp2)>=0){L.state='tp2';ch=true;notice(`${nm}: TP2 ${fmt(L.tp2,SYMBOLS[k].dec)} tercapai 🎯`,[1100,1320,1560]);}
+    else if(!L.tp1hit&&sg*(p-L.tp1)>=0){L.tp1hit=true;ch=true;notice(`${nm}: TP1 ${fmt(L.tp1,SYMBOLS[k].dec)} tercapai – pertimbangkan geser SL ke entry`,[1000,1250]);}
+  }
+  if(ch){saveLock();if(k===S.sym)renderPlans();}
+}
+function updateLive(p){
+  const el=$('livePx');if(el)el.textContent=fmt(p);
+  const L=S.lock[S.sym],e=$('lkLive');
+  if(L&&e){const sg=L.dir==='LONG'?1:-1,r=Math.abs(L.entry-L.sl);
+    e.innerHTML=`${fmt(p)} • ke entry ${fmt(p-L.entry)}`+(L.state==='active'?` • <b class="${sg*(p-L.entry)>=0?'up':'down'}">${(sg*(p-L.entry)/r).toFixed(2)}R</b>`:'');}
+}
+
+/* ================= RENDER ================= */
+function render(a){
+  const dc=dec();
+  if(!a){$('sig').textContent='Data belum cukup.';return;}
+  const cls=a.signal==='LONG'?'b-long':a.signal==='SHORT'?'b-short':'b-wait';
+  const q=Math.abs(a.score)>=5?'Kuat':Math.abs(a.score)>=3?'Sedang':'Lemah';
+  $('sig').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center">
+     <span class="badge ${cls}">${a.signal==='WAIT'?'TUNGGU':a.signal}</span>
+     <span style="text-align:right;font-size:12px;color:var(--mut)">Skor ${a.score>0?'+':''}${a.score.toFixed(1)} • ${q}<br>Harga: <b id="livePx" style="color:var(--txt)">${fmt(S.tickers[S.sym]??a.price)}</b></span></div>
+     <div class="meter"><i style="width:${a.conf}%;background:${a.signal==='LONG'?'var(--up)':a.signal==='SHORT'?'var(--down)':'var(--warn)'}"></i></div>
+     <ul class="r">${a.reasons.map(r=>`<li><b class="${r.v>0?'up':r.v<0?'down':''}">${r.v>0?'+':''}${r.v||'0'}</b> ${r.t}</li>`).join('')}</ul>
+     <div class="small">Dianalisa pada close candle ${a.tf.toUpperCase()} jam ${hhmm(a.time+TF_SEC[a.tf])} (waktu lokal). Skor ≥ +3 = Long, ≤ −3 = Short, selain itu tunggu.</div>`;
+  renderPlans();
+
+  const row=(z,t)=>`<tr><td class="${t==='R'?'down':'up'}">${t==='R'?'Resistance':'Support'}</td><td>${fmt(z.low)} – ${fmt(z.high)}</td><td>${z.touches}×</td><td>${fmt(Math.abs(z.price-a.price)/a.price*100,2)}%</td></tr>`;
+  let fibH='';
+  if(a.fib){fibH=`<div class="small" style="margin-top:10px">Fibonacci – leg ${a.fib.up?'naik (retracement turun)':'turun (retracement naik)'} ${fmt(a.fib.lo)} → ${fmt(a.fib.hi)}</div>
+    <table>${a.fib.levels.map(l=>`<tr><td style="color:#c084fc">${(l.r*100).toFixed(1)}%</td><td>${fmt(l.price)}</td></tr>`).join('')}</table>`;}
+  $('levels').innerHTML=`<table><tr><th></th><th>Zona</th><th>Sentuh</th><th>Jarak</th></tr>
+    ${[...a.resistances].reverse().map(z=>row(z,'R')).join('')}
+    <tr><td colspan="4" style="text-align:center;padding:6px;color:var(--acc);font-weight:700">▶ ${fmt(a.price)} (close terakhir)</td></tr>
+    ${a.supports.map(z=>row(z,'S')).join('')}</table>
+    ${(!a.supports.length||!a.resistances.length)?'<div class="warn">Belum ada zona di salah satu sisi (harga di area ekstrem).</div>':''}${fibH}`;
+
+  const iv=(k,v,c='')=>`<div class="kv"><span>${k}</span><b class="${c}">${v}</b></div>`;
+  $('inds').innerHTML=`<div class="grid2">
+    ${iv('EMA 20',fmt(a.ema20))}${iv('EMA 50',fmt(a.ema50))}
+    ${iv('EMA 200',a.ema200?fmt(a.ema200):'–')}${iv('VWAP harian',fmt(a.vwap))}
+    ${iv('ATR (14)',fmt(a.atr))}${iv('RSI (14)',a.rsi.toFixed(1),a.rsi>70?'down':a.rsi<30?'up':'')}
+    ${iv('MACD hist',a.macdHist==null?'–':a.macdHist.toFixed(dc>2?4:2),a.macdHist>0?'up':'down')}${iv('Vol. relatif',a.relVol.toFixed(2)+'×',a.relVol>1.5?'up':'')}
+    ${iv('Bias '+HTF_OF[a.tf],a.htfTxt,a.htfBias>0?'up':a.htfBias<0?'down':'')}
+    </div>${a.pattern?`<div style="margin-top:6px;font-size:12.5px">Pola terakhir: <b class="${a.pattern.s>0?'up':'down'}">${a.pattern.n}</b></div>`:''}`;
+  renderCalc();
+}
+
+function renderPlans(){
+  const a=S.analysis,L=S.lock[S.sym],d=dec(),step=Math.pow(10,-d);let html='';
+  if(L){
+    const sg=L.dir==='LONG'?1:-1,r=Math.abs(L.entry-L.sl)||1e-9,fin=['sl','tp2','cancel'].includes(L.state);
+    const rr1=Math.abs(L.tp1-L.entry)/r,rr2=Math.abs(L.tp2-L.entry)/r;
+    const inp=(f,lab)=>`<div class="lkin"><label>${lab}<input type="number" step="${step}" value="${L[f]}" onchange="editLock('${f}',this.value)"></label></div>`;
+    const stTxt=STATE_TXT[L.state]+(L.tp1hit&&L.state==='active'?' • TP1 sudah tercapai':'');
+    html+=`<div class="plan locked"><div class="h"><span class="${L.dir==='LONG'?'up':'down'}">🔒 ${L.dir} – TERKUNCI</span><span class="tag">${stTxt}</span></div>
+      <div class="grid2">${inp('entry','Entry')}${inp('sl','Stop Loss')}${inp('tp1','Take Profit 1')}${inp('tp2','Take Profit 2')}</div>
+      <div class="kv" style="margin-top:6px"><span>RR TP1 / TP2</span><b>${rr1.toFixed(2)} / ${rr2.toFixed(2)}</b></div>
+      <div class="kv"><span>Harga sekarang</span><b id="lkLive">–</b></div>
+      <div class="small">Dikunci ${new Date(L.t).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} dari chart ${L.tf.toUpperCase()}. Angka di atas tidak ikut berubah saat analisa diperbarui; Anda bisa mengeditnya manual. Alarm berbunyi saat harga menyentuh entry, SL, TP1, TP2.</div>
+      <button class="btn" style="width:100%;margin-top:8px" onclick="unlockPlan()">${fin?'Selesai – hapus & buat rencana baru':'🔓 Buka kunci'}</button></div>`;
+  }
+  if(a){
+    const planHTML=p=>{
+      const rec=a.signal===p.dir,dim=a.signal!=='WAIT'&&!rec,c=p.dir==='LONG'?'up':'down';
+      return `<div class="plan ${rec?'rec':''} ${dim||L?'dim':''}">
+        <div class="h"><span class="${c}">${p.dir}${a.signal==='WAIT'?' (skenario)':''}</span>
+          <span>${rec?'<span class="tag" style="color:var(--acc);border-color:var(--acc)">DIREKOMENDASIKAN</span> ':''}<button class="btn" style="padding:2px 8px;font-size:12px" onclick="lockPlan('${p.dir}')">🔒 Kunci</button></span></div>
+        <div class="kv"><span>Entry ${p.mode==='limit'?'(limit)':'(market)'}</span><b>${fmt(p.entry)}</b></div>
+        <div class="kv"><span>Stop Loss</span><b class="down">${fmt(p.sl)} <small>(${fmt(Math.abs(p.entry-p.sl)/p.entry*100,2)}%)</small></b></div>
+        <div class="kv"><span>Take Profit 1</span><b class="up">${fmt(p.tp1)} <small>RR ${p.rr1.toFixed(2)}</small></b></div>
+        <div class="kv"><span>Take Profit 2</span><b class="up">${fmt(p.tp2)} <small>RR ${p.rr2.toFixed(2)}</small></b></div>
+        ${p.warn.map(w=>`<div class="warn">⚠ ${w}</div>`).join('')}</div>`;
+    };
+    html+=(L?'<div class="small" style="margin:0 0 6px">Saran analisa terbaru (belum dikunci – tidak mengubah rencana terkunci):</div>':'')
+      +(a.signal==='SHORT'?planHTML(a.plans.SHORT)+planHTML(a.plans.LONG):planHTML(a.plans.LONG)+planHTML(a.plans.SHORT))
+      +'<div class="small">SL = di balik zona S/R terdekat (+ buffer ATR). TP = zona S/R berikutnya, atau kelipatan risiko bila tidak ada. Klik “Kunci” agar angka tidak berubah lagi.</div>';
+  }else html+='<div class="small">Menunggu data…</div>';
+  $('plans').innerHTML=html;
+  const px=S.tickers[S.sym];if(px!=null)updateLive(px);
+}
+
+function renderCalc(){
+  const a=S.analysis,L=S.lock[S.sym];
+  let p,d=$('calcDir').value;
+  if(d==='auto'&&L){p={dir:L.dir,entry:L.entry,sl:L.sl,tp1:L.tp1,tp2:L.tp2};d=L.dir;}
+  else if(a){if(d==='auto')d=a.signal==='WAIT'?'LONG':a.signal;p=a.plans[d];}
+  else return;
+  const risk=Math.abs(p.entry-p.sl)||1e-9,rr1=Math.abs(p.tp1-p.entry)/risk,rr2=Math.abs(p.tp2-p.entry)/risk;
+  const bal=+$('bal').value,rp=+$('riskPct').value,riskUsd=bal*rp/100,units=riskUsd/risk,notional=units*p.entry;
+  const m=SYMBOLS[S.sym];
+  const lotRow=m.lot?`<div class="kv"><span>≈ Lot Exness (1 lot = ${m.lot} oz)</span><b>${(Math.floor(units/m.lot*100)/100).toFixed(2)} lot</b></div>`:'';
+  $('calc').innerHTML=`<div class="kv"><span>Sumber rencana</span><b>${L&&$('calcDir').value==='auto'?'🔒 terkunci':'analisa'} • <span class="${d==='LONG'?'up':'down'}">${d}</span></b></div>
+   <div class="kv"><span>Risiko uang</span><b>$${fmt(riskUsd,2)}</b></div>
+   <div class="kv"><span>Ukuran posisi</span><b>${units.toLocaleString('en-US',{maximumFractionDigits:6})} ${m.unit}</b></div>
+   ${lotRow}
+   <div class="kv"><span>Nilai posisi</span><b>$${fmt(notional,2)}</b></div>
+   <div class="kv"><span>Leverage minimum</span><b>${(notional/bal).toFixed(2)}×</b></div>
+   <div class="kv"><span>Profit di TP1 / TP2</span><b class="up">$${fmt(riskUsd*rr1,2)} / $${fmt(riskUsd*rr2,2)}</b></div>`;
+  sv('ca_calc',{bal:$('bal').value,rp:$('riskPct').value});
+}
+
+/* ================= GARIS DI CHART ================= */
+function clearLines(){S.lines.forEach(l=>{try{candleS.removePriceLine(l);}catch(e){}});S.lines=[];S.lineKey='';}
+function drawLines(a){
+  const L=S.lock[S.sym];
+  if(!$('cSR').checked&&!$('cFib').checked){clearLines();return;}
+  const rec=a&&a.signal!=='WAIT'?a.plans[a.signal]:null;
+  const key=JSON.stringify([$('cSR').checked,$('cFib').checked,a&&a.supports.map(z=>z.price.toFixed(2)),a&&a.resistances.map(z=>z.price.toFixed(2)),
+    a&&a.fib&&a.fib.levels.map(l=>l.price.toFixed(2)),!L&&rec&&[rec.entry,rec.sl,rec.tp1,rec.tp2].map(v=>v.toFixed(2)),L&&[L.entry,L.sl,L.tp1,L.tp2]]);
+  if(key===S.lineKey)return;
+  clearLines();S.lineKey=key;
+  const add=(price,color,title,style=2,w=1)=>S.lines.push(candleS.createPriceLine({price,color,lineWidth:w,lineStyle:style,axisLabelVisible:true,title}));
+  if($('cSR').checked){
+    if(a){a.supports.slice(0,3).forEach((z,i)=>add(z.price,'#26a69a','S'+(i+1),2));
+      a.resistances.slice(0,3).forEach((z,i)=>add(z.price,'#ef5350','R'+(i+1),2));}
+    if(L){add(L.entry,'#3b82f6','ENTRY 🔒',0,2);add(L.sl,'#ef5350','SL 🔒',0,2);add(L.tp1,'#22c55e','TP1 🔒',0,2);add(L.tp2,'#16a34a','TP2 🔒',0,2);}
+    else if(rec){add(rec.entry,'#3b82f6','ENTRY?',3,1);add(rec.sl,'#ef5350','SL?',3,1);add(rec.tp1,'#22c55e','TP1?',3,1);add(rec.tp2,'#16a34a','TP2?',3,1);}
+  }
+  if($('cFib').checked&&a&&a.fib)a.fib.levels.forEach(l=>add(l.price,'#a78bfa','Fib '+(l.r*100).toFixed(1),1,1));
+}
+
+/* ================= ANALISA ================= */
+function runAnalysis(){
+  const closed=S.candles.filter(c=>c.closed);
+  const a=analyze(closed,S.htf,$('entryMode').value);
+  const key=S.sym+S.tf,prev=S.prevSig[key];
+  S.analysis=a;render(a);drawLines(a);
+  if(a){
+    if(prev!==undefined&&prev!==a.signal&&a.signal!=='WAIT')
+      notice(`Sinyal baru ${a.signal} – ${S.sym} ${S.tf.toUpperCase()} (skor ${a.score.toFixed(1)})`,a.signal==='LONG'?[880,1320]:[880,660]);
+    S.prevSig[key]=a.signal;
+  }
+}
+function updateSeries(full){
+  const cs=S.candles,closes=cs.map(c=>c.close);
+  [20,50,200].forEach(p=>{
+    const arr=emaArr(closes,p);
+    if(full)emaS[p].setData(cs.map((c,i)=>arr[i]!=null?{time:c.time,value:arr[i]}:null).filter(Boolean));
+    else{const i=arr.length-1;if(arr[i]!=null)emaS[p].update({time:cs[i].time,value:arr[i]});}
+  });
+  const vw=vwapArr(cs);
+  if(full)vwapS.setData(cs.map((c,i)=>vw[i]!=null?{time:c.time,value:vw[i]}:null).filter(Boolean));
+  else{const i=vw.length-1;if(vw[i]!=null)vwapS.update({time:cs[i].time,value:vw[i]});}
+}
+function applyVis(){[20,50,200].forEach(p=>emaS[p].applyOptions({visible:$('cEma'+p).checked}));vwapS.applyOptions({visible:$('cVwap').checked});}
+
+/* ================= DATA ================= */
+function mapK(k,o){return {time:Math.floor(k[0]/1000)+TZ,open:+k[1]+o,high:+k[2]+o,low:+k[3]+o,close:+k[4]+o,volume:+k[5],closed:k[6]<Date.now()};}
+async function fetchKlines(sym,tf,limit){
+  const m=meta(sym),H=HOSTS[m.mk],o=off(sym);let err;
+  for(const h of H.rest){
+    try{const r=await fetch(`${h}${H.path}?symbol=${m.pair}&interval=${tf}&limit=${limit}`);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return (await r.json()).map(k=>mapK(k,o));}catch(e){err=e;}
   }
   throw err;
 }
-async function htfBias(sym,interval,fut){
+function showOverlay(msg,btn){const o=$('overlay');if(!msg){o.style.display='none';return;}o.style.display='flex';o.innerHTML=`<div>${msg}${btn?'<br><br><button class="btn pri" onclick="start()">Coba lagi</button>':''}</div>`;}
+function setStatus(t,c){$('stxt').textContent=t;$('dot').className='dot '+c;}
+
+async function start(){
+  const id=++S.connId;
+  S.wss.forEach(w=>{try{w.onclose=null;w.close();}catch(e){}});S.wss=[];S.openCnt=0;
+  clearLines();S.tickers={};
+  const m=meta(S.sym);
+  candleS.applyOptions({priceFormat:{type:'price',precision:m.dec,minMove:1/Math.pow(10,m.dec)}});
+  buildWatch();refreshBroker();
+  showOverlay('Memuat data '+m.label+' '+S.tf+'…');setStatus('Memuat…','');
   try{
-    const cs=await fetchKlines(sym,HTF[interval],250,fut);
-    const c=cs.map(x=>x.c), e20=ema(c,20), e50=ema(c,50), i=c.length-1;
-    if(c[i]>e50[i] && e20[i]>e50[i]) return 1;
-    if(c[i]<e50[i] && e20[i]<e50[i]) return -1;
-    return 0;
-  }catch(e){ return null; }
-}
-
-/* ============ INDIKATOR ============ */
-function emaRaw(v,p){
-  const k=2/(p+1), out=[]; let prev=v[0];
-  for(let i=0;i<v.length;i++){ prev = i===0 ? v[0] : v[i]*k + prev*(1-k); out.push(prev); }
-  return out;
-}
-function ema(v,p){ return emaRaw(v,p).map((x,i)=> i>=p-1 ? x : null); }
-function rsiVal(g,l){ return l===0 ? 100 : 100-100/(1+g/l); }
-function rsi(c,p=14){
-  const out=new Array(c.length).fill(null);
-  if(c.length<=p) return out;
-  let g=0,l=0;
-  for(let i=1;i<=p;i++){const d=c[i]-c[i-1]; if(d>=0)g+=d; else l-=d;}
-  g/=p; l/=p; out[p]=rsiVal(g,l);
-  for(let i=p+1;i<c.length;i++){
-    const d=c[i]-c[i-1];
-    g=(g*(p-1)+(d>0?d:0))/p; l=(l*(p-1)+(d<0?-d:0))/p;
-    out[i]=rsiVal(g,l);
-  }
-  return out;
-}
-function atr(cs,p=14){
-  const out=new Array(cs.length).fill(null);
-  const tr=cs.map((x,i)=> i===0 ? x.h-x.l : Math.max(x.h-x.l,Math.abs(x.h-cs[i-1].c),Math.abs(x.l-cs[i-1].c)));
-  let a=0; for(let i=0;i<p;i++) a+=tr[i]; a/=p; out[p-1]=a;
-  for(let i=p;i<cs.length;i++){ a=(a*(p-1)+tr[i])/p; out[i]=a; }
-  return out;
-}
-function macd(c){
-  const e12=emaRaw(c,12), e26=emaRaw(c,26);
-  const m=c.map((_,i)=>e12[i]-e26[i]);
-  const s=emaRaw(m,9);
-  return {hist:m.map((x,i)=>x-s[i])};
-}
-/* VWAP harian (reset 00:00 UTC) */
-function vwap(cs){
-  let pv=0,vv=0,day=-1;
-  return cs.map(x=>{
-    const d=Math.floor(x.t/86400);
-    if(d!==day){day=d;pv=0;vv=0;}
-    const tp=(x.h+x.l+x.c)/3;
-    pv+=tp*x.v; vv+=x.v;
-    return vv>0 ? pv/vv : tp;
-  });
-}
-
-/* ============ SUPPORT / RESISTANCE ============ */
-function pivots(cs,k){
-  const hi=[],lo=[];
-  for(let i=k;i<cs.length-k;i++){
-    let H=true,L=true;
-    for(let j=1;j<=k;j++){
-      if(cs[i].h<=cs[i-j].h || cs[i].h<cs[i+j].h) H=false;
-      if(cs[i].l>=cs[i-j].l || cs[i].l>cs[i+j].l) L=false;
-    }
-    if(H) hi.push({p:cs[i].h,i});
-    if(L) lo.push({p:cs[i].l,i});
-  }
-  return {hi,lo};
-}
-function cluster(pts,tol,n){
-  pts=[...pts].sort((a,b)=>a.p-b.p);
-  const cl=[];
-  for(const x of pts){
-    const last=cl[cl.length-1];
-    if(last && x.p-last.min<=tol) last.pts.push(x);
-    else cl.push({min:x.p,pts:[x]});
-  }
-  return cl.map(c=>{
-    const price=c.pts.reduce((s,x)=>s+x.p,0)/c.pts.length;
-    const touches=c.pts.length;
-    const lastI=Math.max(...c.pts.map(x=>x.i));
-    return {price,touches,lastI,strength:touches+(lastI/n)*2};
-  });
-}
-function pick(arr){
-  const strong=arr.filter(x=>x.touches>=2);
-  return (strong.length>=2 ? strong : arr).slice(0,3);
-}
-
-/* ============ PLAN: ENTRY / SL / TP ============ */
-function buildPlan(dir,close,A,ePull,sup,res,mode,P,swLow,swHigh){
-  const ahead = dir>0 ? res : sup;
-  const behind = dir>0 ? sup : res;
-
-  /* ENTRY: market, atau limit pullback hanya jika sangat dekat harga */
-  let entry=close, type='Market';
-  if(mode==='auto'){
-    const c=[];
-    if(behind[0]) c.push(behind[0].price + dir*P.buf*A);
-    if(ePull!=null && (dir>0 ? ePull<close : ePull>close)) c.push(ePull);
-    const ok=c.filter(p=>{
-      const d=Math.abs(close-p);
-      return d>=P.limMin*A && d<=P.limMax*A && (dir>0 ? p<close : p>close);
-    });
-    if(ok.length){ entry = dir>0 ? Math.max(...ok) : Math.min(...ok); type='Limit (pullback)'; }
-  }
-
-  /* STOP LOSS */
-  let dist;
-  if(P.slMode==='micro'){
-    const raw = dir>0 ? entry-(swLow-P.slBuf*A) : (swHigh+P.slBuf*A)-entry;
-    dist = raw>0 ? raw : P.slDef*A;
-  }else{
-    const sLv = behind.find(l => dir>0 ? l.price<entry : l.price>entry);
-    dist = sLv ? Math.abs(entry-(sLv.price-dir*P.slBuf*A)) : P.slDef*A;
-  }
-  dist = Math.min(Math.max(dist,P.slMin*A),P.slMax*A);
-  const sl = entry-dir*dist, risk=dist;
-
-  /* TAKE PROFIT (dalam satuan R = jarak SL) */
-  const lv = ahead
-    .filter(l => dir>0 ? l.price>entry : l.price<entry)
-    .map(l=>({price:l.price,d:Math.abs(l.price-entry)/risk}))
-    .sort((a,b)=>a.d-b.d);
-  const room = lv.length ? lv[0].d : Infinity;
-  const bR = P.buf*A/risk;
-  let tp1d;
-  const good = lv.find(x=>x.d>=P.tp1Min && x.d<=P.tp1Max);
-  if(good) tp1d = good.d-bR;
-  else if(lv[0] && lv[0].d<P.tp1Min) tp1d = Math.max(lv[0].d-bR,0.5);
-  else tp1d = P.tp1R;
-  tp1d = Math.max(tp1d,0.5);
-  const c2 = lv.find(x=>x.d>=tp1d+0.5 && x.d<=P.tp2Max);
-  let tp2d = c2 ? c2.d-bR : Math.max(P.tp2R,tp1d+0.6);
-  tp2d = Math.max(tp2d,tp1d+0.3);
-  const tp1 = entry+dir*tp1d*risk, tp2 = entry+dir*tp2d*risk;
-
-  return {dir,entry,type,sl,tp1,tp2,risk,rr1:tp1d,rr2:tp2d,room};
-}
-
-/* ============ ANALISA UTAMA ============ */
-function analyze(cs,htf,mode,P){
-  const n=cs.length, c=cs.map(x=>x.c), i=n-1;
-  const [p1,p2,p3]=P.ema;
-  const e1=ema(c,p1), e2=ema(c,p2), e3=ema(c,p3);
-  const R=rsi(c,P.rsiP), Aarr=atr(cs), M=macd(c), VW=vwap(cs);
-  const close=c[i], A=Aarr[i], rs=R[i];
-
-  const look=Math.min(300,n), off=n-look;
-  const {hi,lo}=pivots(cs.slice(-look),P.k);
-  const pts=[...hi,...lo].map(x=>({p:x.p,i:x.i+off}));
-  const lv=cluster(pts,A*P.tol,n);
-  const sup=pick(lv.filter(x=>x.price<close-0.15*A).sort((a,b)=>b.price-a.price));
-  const res=pick(lv.filter(x=>x.price>close+0.15*A).sort((a,b)=>a.price-b.price));
-
-  const W=cs.slice(-9);
-  const swLow=Math.min(...W.map(x=>x.l)), swHigh=Math.max(...W.map(x=>x.h));
-
-  let score=0; const why=[];
-  const add=(p,t)=>{score+=p; why.push({p,t});};
-
-  if(close>e2[i] && e1[i]>e2[i]) add(2,`Harga di atas EMA${p2} & EMA${p1} > EMA${p2} → tren naik`);
-  else if(close<e2[i] && e1[i]<e2[i]) add(-2,`Harga di bawah EMA${p2} & EMA${p1} < EMA${p2} → tren turun`);
-  else add(0,`EMA${p1}/EMA${p2} campuran → belum ada tren jelas`);
-  const trend = (close>e2[i]&&e1[i]>e2[i]) ? 'Naik (bullish)' : (close<e2[i]&&e1[i]<e2[i]) ? 'Turun (bearish)' : 'Sideways / campuran';
-
-  if(e3[i]!=null){
-    if(close>e3[i]) add(1,`Harga di atas EMA${p3} (bias naik)`);
-    else add(-1,`Harga di bawah EMA${p3} (bias turun)`);
-  }
-  if(P.useVwap){
-    if(close>VW[i]) add(1,'Harga di atas VWAP harian (pembeli dominan)');
-    else add(-1,'Harga di bawah VWAP harian (penjual dominan)');
-  }
-  if(rs>=70) add(-1,`RSI(${P.rsiP}) ${rs.toFixed(0)} — jenuh beli, rawan koreksi`);
-  else if(rs>=55) add(1,`RSI(${P.rsiP}) ${rs.toFixed(0)} — momentum naik`);
-  else if(rs<=30) add(1,`RSI(${P.rsiP}) ${rs.toFixed(0)} — jenuh jual, potensi pantulan`);
-  else if(rs<=45) add(-1,`RSI(${P.rsiP}) ${rs.toFixed(0)} — momentum turun`);
-  else add(0,`RSI(${P.rsiP}) ${rs.toFixed(0)} — netral`);
-
-  const h=M.hist[i], hp=M.hist[i-1];
-  if(h>0 && h>hp) add(1,'MACD histogram positif & menguat');
-  else if(h<0 && h<hp) add(-1,'MACD histogram negatif & menguat turun');
-  else add(0,'MACD momentum melemah / netral');
-
-  if(P.breakout && n>10){
-    const prev=cs.slice(-7,-1);
-    const ph=Math.max(...prev.map(x=>x.h)), pl=Math.min(...prev.map(x=>x.l));
-    if(close>ph) add(1,'Breakout di atas high 6 candle terakhir');
-    else if(close<pl) add(-1,'Breakdown di bawah low 6 candle terakhir');
-  }
-  if(P.useVol && n>25){
-    const k=n-2, v=cs.map(x=>x.v);
-    const avg=v.slice(k-20,k).reduce((a,b)=>a+b,0)/20;
-    if(avg>0 && v[k]>1.5*avg){
-      if(cs[k].c>cs[k].o) add(1,'Lonjakan volume pada candle bullish terakhir');
-      else add(-1,'Lonjakan volume pada candle bearish terakhir');
-    }
-  }
-  if(sup[0] && close-sup[0].price<=P.near*A) add(1,'Harga dekat support — area pantul potensial');
-  if(res[0] && res[0].price-close<=P.near*A) add(-1,'Harga dekat resistance — area tolak potensial');
-
-  if(htf!==null){
-    const nm=HTF[state.tf].toUpperCase();
-    if(htf>0) add(1,`Timeframe lebih besar (${nm}) bullish`);
-    else if(htf<0) add(-1,`Timeframe lebih besar (${nm}) bearish`);
-    else add(0,`Timeframe lebih besar (${nm}) netral`);
-  }
-
-  const dir = score>0 ? 1 : score<0 ? -1 : (close>=e2[i] ? 1 : -1);
-  const abs=Math.abs(score);
-  let signal = abs>=P.sig ? (dir>0?'LONG':'SHORT') : 'TUNGGU';
-  const plan = buildPlan(dir,close,A,[e1,e2][P.pull][i],sup,res,mode,P,swLow,swHigh);
-
-  if(P.chop && Math.abs(e1[i]-e2[i])<0.12*A){
-    if(signal!=='TUNGGU') why.push({p:0,t:`⚠️ EMA${p1} & EMA${p2} menempel — market sideways, scalping berisiko`});
-    signal='TUNGGU';
-  }
-  if(signal!=='TUNGGU' && plan.room<0.6){
-    why.push({p:0,t:'⚠️ Ruang ke target terlalu sempit (level lawan sangat dekat)'});
-    signal='TUNGGU';
-  }
-  const strength = signal==='TUNGGU' ? 'Lemah' : (abs>=P.strong?'Kuat':'Cukup');
-
-  return {close,A,rs,trend,score,why,signal,strength,dir,plan,sup,res,
-          e1,e2,e3,VW,atrPct:A/close*100};
-}
-
-/* ============ FORMAT ============ */
-const dp = p => p>=100?2 : p>=1?3 : 5;
-const fmt = p => p.toLocaleString('en-US',{minimumFractionDigits:dp(p),maximumFractionDigits:dp(p)});
-const pct = (a,b) => ((a-b)/b*100);
-const money = v => v.toLocaleString('en-US',{maximumFractionDigits:2});
-const units = u => u>=100?u.toFixed(2):u>=1?u.toFixed(3):u.toFixed(5);
-
-/* ============ CHART ============ */
-const chartEl=$('chart');
-const chart=LightweightCharts.createChart(chartEl,{
-  width:chartEl.clientWidth,height:chartEl.clientHeight,
-  layout:{background:{color:'#121a28'},textColor:'#8a9bb5'},
-  grid:{vertLines:{color:'#1a2438'},horzLines:{color:'#1a2438'}},
-  rightPriceScale:{borderColor:'#25324d'},
-  timeScale:{borderColor:'#25324d',timeVisible:true,secondsVisible:false},
-  crosshair:{mode:0}
-});
-const candle=chart.addCandlestickSeries({
-  upColor:'#26a69a',downColor:'#ef5350',borderVisible:false,
-  wickUpColor:'#26a69a',wickDownColor:'#ef5350'
-});
-const mkLine=(color,w=1)=>chart.addLineSeries({color,lineWidth:w,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
-const sE1=mkLine('#f5b942'), sE2=mkLine('#4c8dff'), sE3=mkLine('#c77dff'), sVW=mkLine('#22d3ee',2);
-new ResizeObserver(()=>chart.applyOptions({width:chartEl.clientWidth,height:chartEl.clientHeight})).observe(chartEl);
-
-let srLines=[], srKey='', planLines=null;
-const mkPL=(price,color,title,w)=>candle.createPriceLine({price,color,lineWidth:w,lineStyle:0,axisLabelVisible:true,title});
-function resetOverlays(){
-  srLines.forEach(l=>candle.removePriceLine(l)); srLines=[]; srKey='';
-  if(planLines){ Object.values(planLines).forEach(l=>candle.removePriceLine(l)); planLines=null; }
-}
-function drawOverlays(){
-  const a=state.an; if(!a) return;
-  const P=params();
-  const showEMA=$('tEMA').checked;
-  [sE1,sE2,sE3].forEach(s=>s.applyOptions({visible:showEMA}));
-  sVW.applyOptions({visible:showEMA && P.useVwap});
-
-  const showSR=$('tSR').checked;
-  const key=showSR ? a.sup.concat(a.res).map(l=>l.price.toFixed(5)).join('|') : 'off';
-  if(key!==srKey){
-    srLines.forEach(l=>candle.removePriceLine(l)); srLines=[];
-    if(showSR){
-      a.sup.forEach((l,i)=>srLines.push(candle.createPriceLine({price:l.price,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:`S${i+1} (${l.touches}x)`})));
-      a.res.forEach((l,i)=>srLines.push(candle.createPriceLine({price:l.price,color:'#f5b942',lineWidth:1,lineStyle:2,axisLabelVisible:true,title:`R${i+1} (${l.touches}x)`})));
-    }
-    srKey=key;
-  }
-  const p=state.locked||a.plan;
-  if(!$('tPlan').checked){
-    if(planLines){ Object.values(planLines).forEach(l=>candle.removePriceLine(l)); planLines=null; }
-  }else if(!planLines){
-    planLines={entry:mkPL(p.entry,'#4c8dff','ENTRY',2),sl:mkPL(p.sl,'#ef5350','SL',2),tp1:mkPL(p.tp1,'#26a69a','TP1',1),tp2:mkPL(p.tp2,'#26a69a','TP2',1)};
-  }else{
-    planLines.entry.applyOptions({price:p.entry}); planLines.sl.applyOptions({price:p.sl});
-    planLines.tp1.applyOptions({price:p.tp1}); planLines.tp2.applyOptions({price:p.tp2});
-  }
-}
-function pushIndicators(a,cs,full){
-  const mk=(arr)=>arr.map((v,i)=>v==null?null:{time:cs[i].t+TZ,value:v}).filter(Boolean);
-  const pairs=[[sE1,a.e1],[sE2,a.e2],[sE3,a.e3],[sVW,a.VW]];
-  if(full){ pairs.forEach(([s,arr])=>s.setData(mk(arr))); return; }
-  const idx=cs.length-1;
-  pairs.forEach(([s,arr])=>{ if(arr[idx]!=null){ try{s.update({time:cs[idx].t+TZ,value:arr[idx]});}catch(e){} } });
-}
-
-/* ============ PANEL ============ */
-function liveStatus(p,lp,A){
-  const d=p.dir, gap=lp-p.entry;
-  if(d>0 ? lp<=p.sl : lp>=p.sl) return ['neg','❌ Harga menyentuh Stop Loss'];
-  if(d>0 ? lp>=p.tp2 : lp<=p.tp2) return ['pos','🎯 TP2 tercapai'];
-  if(d>0 ? lp>=p.tp1 : lp<=p.tp1) return ['pos','🎯 TP1 tercapai — amankan profit / geser SL ke BE'];
-  if(Math.abs(gap)<=0.15*A) return ['pos','✅ Harga berada di zona entry'];
-  if(p.type.startsWith('Limit')){
-    return gap*d>0 ? ['neu',`⏳ Menunggu pullback ke entry (jarak ${fmt(Math.abs(gap))})`]
-                   : ['neg',`⚠️ Harga sudah melewati entry (${fmt(Math.abs(gap))}) — setup bisa batal`];
-  }
-  return gap*d>0 ? ['neg',`⚠️ Harga sudah bergerak ${fmt(Math.abs(gap))} dari entry — jangan mengejar`]
-                 : ['neu',`ℹ️ Harga bergerak ${fmt(Math.abs(gap))} melawan arah entry`];
-}
-function toggleLock(){
-  if(state.locked){ state.locked=null; }
-  else if(state.an){ state.locked={...state.an.plan, signal:state.an.signal}; }
-  drawOverlays(); renderDyn();
-}
-function renderDyn(){
-  const a=state.an; if(!a) return;
-  const P=params(), p=state.locked||a.plan, d=p.dir, lp=state.live||a.close;
-  const sig=state.locked?state.locked.signal:a.signal;
-  const cls=sig==='LONG'?'long':sig==='SHORT'?'short':'wait';
-  const sideTxt=d>0?'LONG (Buy)':'SHORT (Sell)';
-  const confirmed=sig!=='TUNGGU';
-  const st=liveStatus(p,lp,a.A);
-  const lvl=(arr,name)=>arr.length ? arr.map((l,i)=>`<tr><td>${name}${i+1} <span class="mut">(${l.touches}x sentuh)</span></td><td>${fmt(l.price)} <span class="mut">${pct(l.price,a.close)>0?'+':''}${pct(l.price,a.close).toFixed(2)}%</span></td></tr>`).join('') : `<tr><td class="mut" colspan="2">Tidak ada level terdekat (harga di area baru)</td></tr>`;
-
-  $('dyn').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <span class="badge ${cls}">${sig==='TUNGGU'?'⏳ TUNGGU':(sig==='LONG'?'▲ LONG':'▼ SHORT')}</span>
-      <div style="text-align:right"><div>Skor <b>${a.score>0?'+':''}${a.score}</b> · ${a.strength}</div><div class="mut" style="font-size:12px">Tren: ${a.trend}</div></div>
-    </div>
-    <div class="note" style="margin-top:8px">${P.icon} ${P.label} · ${TF_LABEL[state.tf]} · RSI <b>${a.rs.toFixed(1)}</b> · ATR <b>${fmt(a.A)}</b> (${a.atrPct.toFixed(2)}%)</div>
-
-    <div class="sec">
-      <h3>${state.locked?'🔒 Rencana Terkunci':(confirmed?'Rencana Trade':'Skenario Potensial (belum terkonfirmasi)')} — ${sideTxt}</h3>
-      <table>
-        <tr><td><span class="k" style="background:#4c8dff"></span>Entry <span class="mut">(${p.type})</span></td><td><b>${fmt(p.entry)}</b><br><span class="mut">${Math.abs(p.entry-lp)<0.0001*lp?'di harga sekarang':'jarak '+fmt(Math.abs(p.entry-lp))+' dari harga'}</span></td></tr>
-        <tr><td><span class="k" style="background:#ef5350"></span>Stop Loss</td><td><b>${fmt(p.sl)}</b><br><span class="mut">risiko ${fmt(p.risk)} · ${(p.risk/a.A).toFixed(1)}×ATR</span></td></tr>
-        <tr><td><span class="k" style="background:#26a69a"></span>Take Profit 1</td><td><b>${fmt(p.tp1)}</b><br><span class="mut">+${fmt(Math.abs(p.tp1-p.entry))} · RR 1:${p.rr1.toFixed(1)}</span></td></tr>
-        <tr><td><span class="k" style="background:#26a69a"></span>Take Profit 2</td><td><b>${fmt(p.tp2)}</b><br><span class="mut">+${fmt(Math.abs(p.tp2-p.entry))} · RR 1:${p.rr2.toFixed(1)}</span></td></tr>
-      </table>
-      <div class="stat ${st[0]}">${st[1]}</div>
-      <div class="note" style="margin-top:6px">${confirmed?'':'Sinyal belum terkonfirmasi — tunggu skor naik / candle konfirmasi sebelum masuk. '}${p.type.startsWith('Limit')?'Entry limit di area pullback dekat harga; batalkan jika harga lari tanpa menyentuhnya.':''}</div>
-      <button class="btn" style="margin-top:8px;width:100%" onclick="toggleLock()">${state.locked?'🔓 Lepas kunci (ikuti harga live)':'🔒 Kunci rencana (level tidak bergeser)'}</button>
-      <div class="tip">${P.tip}</div>
-    </div>
-
-    <div class="sec">
-      <h3>Resistance</h3><table>${lvl(a.res,'R')}</table>
-      <h3 style="margin-top:10px">Support</h3><table>${lvl(a.sup,'S')}</table>
-    </div>
-
-    <div class="sec">
-      <h3>Alasan Analisa</h3>
-      <ul>${a.why.map(w=>`<li><span class="p ${w.p>0?'pos':w.p<0?'neg':'neu'}">${w.p>0?'+':''}${w.p}</span><span>${w.t}</span></li>`).join('')}</ul>
-    </div>`;
-  calc();
-}
-function calc(){
-  const a=state.an; if(!a) return;
-  const p=state.locked||a.plan;
-  const bal=+$('bal').value||0, rp=+$('rp').value||0, spr=+$('spr').value||0;
-  try{localStorage.setItem('analis_calc',JSON.stringify({bal:$('bal').value,rp:$('rp').value,spr:$('spr').value}))}catch(e){}
-  const riskUsd=bal*rp/100;
-  const u=riskUsd/(p.risk+spr);
-  const notional=u*p.entry;
-  const g1=Math.max(Math.abs(p.tp1-p.entry)-spr,0), g2=Math.max(Math.abs(p.tp2-p.entry)-spr,0);
-  const rrn1=g1/(p.risk+spr), rrn2=g2/(p.risk+spr);
-  $('calcOut').innerHTML=`<table>
-    <tr><td>Risiko jika kena SL</td><td><b class="neg">-$${money(riskUsd)}</b></td></tr>
-    <tr><td>Ukuran posisi</td><td><b>${units(u)}</b> ${ASSETS[state.asset].sym.replace('USDT','')}</td></tr>
-    <tr><td>Nilai posisi</td><td>$${money(notional)} <span class="mut">(${bal?(notional/bal).toFixed(1):'0'}x modal)</span></td></tr>
-    <tr><td>Profit di TP1</td><td class="pos">+$${money(u*g1)} <span class="mut">RR bersih 1:${rrn1.toFixed(2)}</span></td></tr>
-    <tr><td>Profit di TP2</td><td class="pos">+$${money(u*g2)} <span class="mut">RR bersih 1:${rrn2.toFixed(2)}</span></td></tr>
-  </table>${spr>0?'<div class="note" style="margin-top:4px">Spread dihitung memperlebar risiko dan memangkas profit.</div>':''}
-  <div class="note" style="margin-top:4px">Ukuran posisi di atas dalam satuan aset (bukan lot broker) — konversikan ke lot Exness sesuai ukuran kontrak.</div>`;
-}
-
-/* ============ ANALISA & RENDER ============ */
-function adj(){
-  const o=getOff();
-  return o ? state.raw.map(x=>({t:x.t,o:x.o+o,h:x.h+o,l:x.l+o,c:x.c+o,v:x.v})) : state.raw;
-}
-function runAnalysis(force,full){
-  if(state.raw.length<60) return;
-  const cs=adj(), P=params();
-  const an=analyze(cs,state.htf,$('mode').value,P);
-  const key=an.signal+an.plan.dir;
-  if(!state.an || force || key===state.an.key){ an.key=key; state.an=an; state.pend=0; }
-  else{ state.pend++; if(state.pend>=2){ an.key=key; state.an=an; state.pend=0; } }
-  pushIndicators(an,cs,full);
-  drawOverlays();
-  renderDyn();
-}
-function paintAll(fit){
-  const cs=adj(), P=params();
-  const last=cs[cs.length-1].c;
-  candle.applyOptions({priceFormat:{type:'price',precision:dp(last),minMove:1/Math.pow(10,dp(last))}});
-  candle.setData(cs.map(x=>({time:x.t+TZ,open:x.o,high:x.h,low:x.l,close:x.c})));
-  state.live=last; state.an=null;
-  runAnalysis(true,true);
-  if(fit){ const n=cs.length; chart.timeScale().setVisibleLogicalRange({from:n-P.view,to:n+8}); }
-  const off=getOff();
-  $('symName').textContent=ASSETS[state.asset].name+' · '+TF_LABEL[state.tf]+(off?` · selisih ${off>0?'+':''}${off}`:'');
-  $('legend').innerHTML=`<span class="k" style="background:#f5b942"></span>EMA${P.ema[0]} <span class="k" style="background:#4c8dff"></span>EMA${P.ema[1]} <span class="k" style="background:#c77dff"></span>EMA${P.ema[2]}`+(P.useVwap?` <span class="k" style="background:#22d3ee"></span>VWAP`:'');
-  setPrice(last);
-}
-function setPrice(p){
-  const el=$('curPrice');
-  el.style.color = p>state.live ? '#26a69a' : p<state.live ? '#ef5350' : '';
-  state.live=p;
-  el.textContent=fmt(p);
-  $('lastTime').textContent='Update: '+new Date().toLocaleTimeString('id-ID');
-}
-
-/* ============ REALTIME (WebSocket + fallback polling) ============ */
-let ws=null, wsTimer=null, pollTimer=null, streamId=0;
-function setLive(m){
-  const el=$('live');
-  const map={live:['● LIVE','#26a69a'],poll:['● POLLING 2 dtk','#f5b942'],reconnect:['● Menyambung ulang…','#f5b942'],load:['● Memuat…','#8a9bb5'],off:['● Terputus','#ef5350']};
-  const [t,c]=map[m]||map.off; el.textContent=t; el.style.color=c;
-}
-function ingest(c,closed,poll){
-  const arr=state.raw; if(!arr.length) return;
-  const last=arr[arr.length-1]; let isNew=false, isLast=true;
-  if(c.t===last.t) arr[arr.length-1]=c;
-  else if(c.t>last.t){ arr.push(c); if(arr.length>700) arr.shift(); isNew=true; }
-  else { const i=arr.findIndex(x=>x.t===c.t); if(i>=0) arr[i]=c; isLast=false; }
-  if(!isLast) return;
-  const o=getOff();
-  try{ candle.update({time:c.t+TZ,open:c.o+o,high:c.h+o,low:c.l+o,close:c.c+o}); }catch(e){}
-  setPrice(c.c+o);
-  state.dirty=true;
-  if(closed || (poll && isNew)){ runAnalysis(true); state.dirty=false; }
-}
-function stopPoll(){ if(pollTimer){clearInterval(pollTimer);pollTimer=null;} }
-function stopStream(){
-  streamId++; stopPoll();
-  if(wsTimer){clearTimeout(wsTimer);wsTimer=null;}
-  if(ws){ try{ws.onclose=null;ws.close();}catch(e){} ws=null; }
-}
-function startPoll(myId){
-  if(pollTimer) return;
-  const A=ASSETS[state.asset], iv=state.tf;
-  const run=async()=>{
-    try{
-      const ks=await fetchKlines(A.sym,iv,3,!!A.fut);
-      if(myId!==streamId) return;
-      ks.forEach(c=>ingest(c,false,true));
-    }catch(e){}
-  };
-  run(); pollTimer=setInterval(run,2000);
-}
-function startStream(){
-  stopStream();
-  const A=ASSETS[state.asset], iv=state.tf, myId=streamId, s=A.sym.toLowerCase();
-  const urls = A.fut
-    ? [`wss://fstream.binance.com/ws/${s}@kline_${iv}`,`wss://fstream.binance.com/market/ws/${s}@kline_${iv}`]
-    : [`wss://stream.binance.com:9443/ws/${s}@kline_${iv}`,`wss://data-stream.binance.vision/ws/${s}@kline_${iv}`];
-  let ui=0;
-  const open=()=>{
-    if(myId!==streamId) return;
-    let opened=false, w;
-    try{ w=new WebSocket(urls[ui%urls.length]); }catch(e){ setLive('poll'); startPoll(myId); return; }
-    ws=w;
-    w.onopen=()=>{ opened=true; setLive('live'); stopPoll(); };
-    w.onmessage=ev=>{
-      if(myId!==streamId) return;
-      try{
-        const m=JSON.parse(ev.data), k=m.k||(m.data&&m.data.k);
-        if(k) ingest({t:Math.floor(k.t/1000),o:+k.o,h:+k.h,l:+k.l,c:+k.c,v:+k.v},!!k.x,false);
-      }catch(e){}
-    };
-    w.onerror=()=>{};
-    w.onclose=()=>{
-      if(myId!==streamId) return;
-      setLive(opened?'reconnect':'poll');
-      startPoll(myId);
-      if(!opened) ui++;
-      wsTimer=setTimeout(open,opened?1500:4000);
-    };
-  };
-  open();
-}
-
-/* ============ LOAD ============ */
-let loadId=0;
-async function loadAll(){
-  const id=++loadId;
-  stopStream(); setLive('load');
-  const A=ASSETS[state.asset], iv=state.tf;
-  $('status').textContent='';
-  try{
-    const [raw,htf]=await Promise.all([fetchKlines(A.sym,iv,500,!!A.fut),htfBias(A.sym,iv,!!A.fut)]);
-    if(id!==loadId) return;
-    state.raw=raw; state.htf=htf; state.pend=0;
-    resetOverlays();
-    paintAll(true);
-    startStream();
+    const [main,htf]=await Promise.all([fetchKlines(S.sym,S.tf,600),fetchKlines(S.sym,HTF_OF[S.tf],300)]);
+    if(id!==S.connId)return;
+    S.candles=main;S.htf=htf;
+    candleS.setData(main);
+    volS.setData(main.map(c=>({time:c.time,value:c.volume,color:c.close>=c.open?'rgba(38,166,154,.4)':'rgba(239,83,80,.4)'})));
+    updateSeries(true);applyVis();
+    chart.timeScale().setVisibleLogicalRange({from:main.length-120,to:main.length+8});
+    showOverlay('');runAnalysis();connectWS(id);
   }catch(e){
-    if(id!==loadId) return;
-    setLive('off');
-    $('status').textContent='Gagal memuat data ('+(e.message||e)+'). Cek internet lalu klik "Muat ulang".';
+    if(id!==S.connId)return;
+    if(S.sym==='XAU'&&S.goldSrc==='fut'){
+      S.goldSrc='paxg';saveState();$('goldSrc').value='paxg';
+      notice('Binance Futures XAUUSDT tidak bisa diakses dari koneksi Anda – otomatis pindah ke PAXG/USDT. Atur ulang selisih broker (kalibrasi).');
+      return start();
+    }
+    setStatus('Gagal','off');
+    showOverlay('Gagal memuat data dari Binance.<br>Periksa koneksi internet. Jika Binance diblokir provider Anda, coba VPN atau DNS lain.',true);
   }
 }
+setInterval(async()=>{try{S.htf=await fetchKlines(S.sym,HTF_OF[S.tf],300);}catch(e){}},60000);
 
-/* ============ KALIBRASI: BEKUKAN HARGA ============ */
-/* frozen = harga sumber (Binance, tanpa selisih) pada detik tombol Bekukan diketuk */
-let frozen=null;
-function frzClose(){
-  frozen=null;
-  $('frzForm').style.display='none';
-  $('frzEx').value='';
-  $('frzRes').textContent='-';
-  $('freeze').textContent='❄ Bekukan harga';
+function connectWS(id){
+  const plan={spot:[],fut:[]};
+  Object.keys(SYMBOLS).forEach(k=>{const m=meta(k);plan[m.mk].push(m.pair.toLowerCase()+'@miniTicker');});
+  const sm=meta(S.sym);plan[sm.mk].push(sm.pair.toLowerCase()+'@kline_'+S.tf);
+  const mks=Object.keys(plan).filter(k=>plan[k].length);
+  mks.forEach(mk=>{
+    const ws=new WebSocket(`${HOSTS[mk].ws}/stream?streams=${plan[mk].join('/')}`);
+    S.wss.push(ws);
+    ws.onopen=()=>{if(id!==S.connId)return;S.retry=0;if(++S.openCnt>=mks.length)setStatus('Live','live');};
+    ws.onmessage=ev=>{if(id!==S.connId)return;const d=JSON.parse(ev.data).data;if(!d)return;
+      if(d.e==='24hrMiniTicker')onTicker(d);else if(d.e==='kline')onKline(d.k);};
+    ws.onclose=()=>{if(id!==S.connId)return;setStatus('Terputus – menyambung ulang…','off');
+      const wait=Math.min(15000,1500*(++S.retry));setTimeout(()=>{if(id===S.connId)start();},wait);};
+    ws.onerror=()=>{try{ws.close();}catch(e){}};
+  });
 }
-function frzUpdate(){
-  if(!frozen) return;
-  const ex=parseFloat($('frzEx').value);
-  if(isNaN(ex)){ $('frzRes').textContent='-'; $('frzRes').className='res'; return; }
-  const d=ex-frozen.raw;
-  $('frzRes').textContent=(d>0?'+':'')+(Math.round(d*100000)/100000);
-  $('frzRes').className='res '+(d>0?'pos':d<0?'neg':'');
+
+function onKline(k){
+  const o=off(S.sym);S.raw[S.sym]=+k.c;
+  const c={time:Math.floor(k.t/1000)+TZ,open:+k.o+o,high:+k.h+o,low:+k.l+o,close:+k.c+o,volume:+k.v,closed:!!k.x};
+  const arr=S.candles,lt=arr.length?arr[arr.length-1].time:0;
+  if(c.time===lt)arr[arr.length-1]=c;
+  else if(c.time>lt){arr.push(c);if(arr.length>1200)arr.shift();}
+  else return;
+  candleS.update(c);
+  volS.update({time:c.time,value:c.volume,color:c.close>=c.open?'rgba(38,166,154,.4)':'rgba(239,83,80,.4)'});
+  updateSeries(false);
+  S.tickers[S.sym]=c.close;
+  updateLive(c.close);checkLock(S.sym,c.close);updateBrokerLive();
+  if(k.x)runAnalysis();
 }
-$('freeze').addEventListener('click',()=>{
-  if(!state.raw.length){ $('status').textContent='Data belum termuat, tunggu sebentar.'; return; }
-  /* ambil harga sumber SEKARANG lalu bekukan, tidak berubah lagi */
-  frozen={raw:state.raw[state.raw.length-1].c, asset:state.asset};
-  $('frzRaw').textContent=fmt(frozen.raw);
-  $('frzAsset').textContent='('+ASSETS[state.asset].label+', harga sumber Binance)';
-  $('frzForm').style.display='block';
-  $('freeze').textContent='❄ Bekukan ulang';
-  $('frzEx').value='';
-  $('frzRes').textContent='-';
-  $('frzEx').focus();
-});
-$('frzEx').addEventListener('input',frzUpdate);
-$('frzCancel').addEventListener('click',frzClose);
-$('frzSave').addEventListener('click',()=>{
-  if(!frozen) return;
-  const ex=parseFloat($('frzEx').value);
-  if(isNaN(ex)){ $('frzRes').textContent='Isi harga Exness dulu'; return; }
-  const d=Math.round((ex-frozen.raw)*100000)/100000;
-  const o=getOffs(); o[frozen.asset]=d;
-  try{localStorage.setItem('analis_offsets',JSON.stringify(o))}catch(e){}
-  if(frozen.asset===state.asset){
-    $('offset').value=d;
-    state.locked=null;
-    if(state.raw.length){ resetOverlays(); paintAll(false); }
-  }
-  frzClose();
-  $('status').textContent='Selisih tersimpan: '+(d>0?'+':'')+d;
-});
 
-/* ============ UI ============ */
-function buildButtons(){
-  $('assets').innerHTML=Object.entries(ASSETS).map(([k,v])=>`<button data-a="${k}" class="${k===state.asset?'on':''}">${v.label}</button>`).join('');
-  $('tfs').innerHTML=TFS.map(k=>`<button data-t="${k}" class="${k===state.tf?'on':''}">${TF_LABEL[k]}</button>`).join('');
-  $('offset').value=getOff()||0;
+/* ================= WATCHLIST ================= */
+function buildWatch(){
+  $('watch').innerHTML=Object.keys(SYMBOLS).map(k=>{const m=meta(k);
+    return `<div class="wcard" id="w_${k}" onclick="pickSym('${k}')"><div class="n"><span>${SYMBOLS[k].label}</span><span>${m.pair}${k==='XAU'&&m.mk==='fut'?' (Fut)':''}</span></div>
+    <div class="p" id="wp_${k}">–</div><div class="c" id="wc_${k}">–</div></div>`;}).join('');
+  markActive();
 }
-$('assets').onclick=e=>{const b=e.target.closest('button'); if(!b) return; state.asset=b.dataset.a; state.locked=null; frzClose(); save(); buildButtons(); loadAll();};
-$('tfs').onclick=e=>{const b=e.target.closest('button'); if(!b) return; state.tf=b.dataset.t; state.locked=null; save(); buildButtons(); loadAll();};
-buildButtons();
+function markActive(){Object.keys(SYMBOLS).forEach(k=>{const e=$('w_'+k);if(e)e.classList.toggle('active',k===S.sym);});}
+function onTicker(d){
+  const k=Object.keys(SYMBOLS).find(x=>meta(x).pair===d.s);if(!k)return;
+  const raw=+d.c,p=raw+off(k),o=+d.o+off(k),prev=S.tickers[k];
+  S.raw[k]=raw;
+  const wp=$('wp_'+k);if(!wp)return;
+  wp.textContent=fmt(p,SYMBOLS[k].dec);
+  const ch=(p-o)/o*100,el=$('wc_'+k);el.textContent=(ch>=0?'+':'')+ch.toFixed(2)+'% (24j)';el.className='c '+(ch>=0?'up':'down');
+  if(prev!=null&&prev!==p){const c=$('w_'+k);c.classList.remove('flashUp','flashDown');void c.offsetWidth;c.classList.add(p>prev?'flashUp':'flashDown');}
+  if(k!==S.sym)S.tickers[k]=p;
+  checkLock(k,p);
+  if(k===S.sym){updateLive(S.tickers[k]??p);updateBrokerLive();}
+}
+function pickSym(k){if(k===S.sym)return;S.sym=k;saveState();start();}
+function pickTf(t){if(t===S.tf)return;S.tf=t;saveState();buildTf();start();}
+function buildTf(){$('tfSeg').innerHTML=TFS.map(t=>`<button class="${t===S.tf?'on':''}" onclick="pickTf('${t}')">${t.toUpperCase().replace('M',' M').replace('H',' H')}</button>`).join('');}
 
-['tSR','tEMA','tPlan'].forEach(id=>$(id).addEventListener('change',()=>{ if(!$('tPlan').checked||!$('tSR').checked) {} drawOverlays(); }));
-$('offset').addEventListener('change',()=>{
-  const o=getOffs(); o[state.asset]=+$('offset').value||0;
-  try{localStorage.setItem('analis_offsets',JSON.stringify(o))}catch(e){}
-  state.locked=null;
-  if(state.raw.length){ resetOverlays(); paintAll(false); }
+/* ================= PENYESUAIAN BROKER ================= */
+function refreshBroker(){
+  $('offSym').textContent=SYMBOLS[S.sym].label;
+  $('goldSrcRow').style.display=S.sym==='XAU'?'block':'none';
+  $('goldSrc').value=S.goldSrc;
+  $('offIn').value=off(S.sym);
+  updateBrokerLive();
+}
+function updateBrokerLive(){
+  const r=S.raw[S.sym];
+  $('rawPx').textContent=r!=null?fmt(r):'–';
+  $('shownPx').textContent=r!=null?fmt(r+off(S.sym)):'–';
+}
+function setOffset(k,v){
+  const key=offKey(k),delta=v-(S.off[key]||0);
+  if(!delta)return;
+  S.off[key]=v;sv('ca_off',S.off);
+  const L=S.lock[k];if(L){['entry','sl','tp1','tp2'].forEach(f=>L[f]=rnd(L[f]+delta,SYMBOLS[k].dec));saveLock();}
+  S.lineKey='';
+  if(k===S.sym)start();
+}
+function calibrate(){
+  const b=parseFloat($('brokerIn').value),r=S.raw[S.sym];
+  if(isNaN(b)){notice('Isi dulu harga yang tampil di broker (mis. di MT5/Exness).');return;}
+  if(r==null){notice('Harga sumber belum masuk, tunggu beberapa detik.');return;}
+  const v=+(b-r).toFixed(2);
+  $('offIn').value=v;setOffset(S.sym,v);
+  notice(`Selisih diset ${v>=0?'+':''}${v} untuk ${SYMBOLS[S.sym].label}. Semua level kini memakai harga broker Anda.`);
+  $('brokerIn').value='';
+}
+
+/* ================= EVENT & TIMER ================= */
+setInterval(()=>{const s=TF_SEC[S.tf],rem=s-Math.floor(Date.now()/1000)%s;$('cd').textContent=pad(Math.floor(rem/60))+':'+pad(rem%60);},1000);
+['cEma20','cEma50','cEma200','cVwap'].forEach(i=>$(i).addEventListener('change',applyVis));
+['cSR','cFib'].forEach(i=>$(i).addEventListener('change',()=>{S.lineKey='';drawLines(S.analysis);}));
+$('cAlarm').addEventListener('change',e=>{
+  S.alarm=e.target.checked;saveState();
+  if(S.alarm){beep([880,1100]);try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(x){}}
 });
-$('mode').addEventListener('change',()=>{ state.locked=null; runAnalysis(true); });
-$('refresh').addEventListener('click',loadAll);
-['bal','rp','spr'].forEach(id=>$(id).addEventListener('input',calc));
-try{
-  const pv=JSON.parse(localStorage.getItem('analis_calc')||'{}');
-  if(pv.bal) $('bal').value=pv.bal; if(pv.rp) $('rp').value=pv.rp; if(pv.spr) $('spr').value=pv.spr;
-}catch(e){}
+$('entryMode').addEventListener('change',runAnalysis);
+['bal','riskPct','calcDir'].forEach(i=>$(i).addEventListener('input',renderCalc));
+$('offIn').addEventListener('change',e=>{const v=parseFloat(e.target.value);if(!isNaN(v))setOffset(S.sym,v);});
+$('goldSrc').addEventListener('change',e=>{S.goldSrc=e.target.value;saveState();start();});
+(function(){const c=ld('ca_calc',{});if(c.bal)$('bal').value=c.bal;if(c.rp)$('riskPct').value=c.rp;$('cAlarm').checked=S.alarm;})();
 
-/* analisa ulang tiap 2 dtk jika ada data baru; bias timeframe besar tiap 60 dtk */
-setInterval(()=>{ if(state.dirty){ state.dirty=false; runAnalysis(false); } },2000);
-setInterval(async()=>{
-  if(!state.raw.length) return;
-  const A=ASSETS[state.asset], iv=state.tf;
-  const h=await htfBias(A.sym,iv,!!A.fut);
-  if(iv===state.tf && A===ASSETS[state.asset]) state.htf=h;
-},60000);
-loadAll();
+buildTf();start();
 </script>
 </body>
 </html>
